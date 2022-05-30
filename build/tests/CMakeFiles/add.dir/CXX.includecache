@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/quadruped-reactive-walking/gepadd.hpp
+
+/home/student/quadruped-reactive-walking/tests/add.cpp
+cassert
+-
+quadruped-reactive-walking/gepadd.hpp
+/home/student/quadruped-reactive-walking/tests/quadruped-reactive-walking/gepadd.hpp
+
