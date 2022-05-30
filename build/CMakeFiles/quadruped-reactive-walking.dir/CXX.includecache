@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/other/st_to_cc.hpp
+
+/home/student/quadruped-reactive-walking/src/st_to_cc.cpp
+stdlib.h
+-
+stdio.h
+-
+math.h
+-
+time.h
+-
+string.h
+-
+other/st_to_cc.hpp
+/home/student/quadruped-reactive-walking/src/other/st_to_cc.hpp
+
