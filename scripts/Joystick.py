@@ -71,6 +71,12 @@ class Joystick:
         self.time = 0.0
         self.start_time = 0.0
         self.wait = 0
+        self.vXmax = 1.6
+        self.vYmax = 1.6
+        self.vYawmax = 1.6
+
+        # False if trajectory (x,y), true if trajectory (x,y,phi)
+        self.orientation = True
     
     ################################################################################################
     # ROS
@@ -152,7 +158,12 @@ class Joystick:
         nb_pos = len(self.trajectory)
 
         # Not looking outside of the array
-        if (self.pos+3) > nb_pos :
+        if not self.orientation and ((self.pos+3) > nb_pos) :
+            self.vX = 0.0
+            self.vY = 0.0
+            self.vYaw = 0.0
+
+        if self.orientation and ((self.pos+6) > nb_pos) :
             self.vX = 0.0
             self.vY = 0.0
             self.vYaw = 0.0
@@ -161,41 +172,43 @@ class Joystick:
         elif self.wait > 200 :
             if (self.pos == 0) :
                 self.start_time = time.time()
-            print("Time since first call : ", time.time() - self.start_time)    
-            print("Time since the previous call : ", time.time()-self.time)
             self.time = time.time()
-            print(self.pos)
-            self.vX = (self.trajectory[self.pos+2]-self.trajectory[self.pos])/self.dT
-            self.vY = (self.trajectory[self.pos+3]-self.trajectory[self.pos+1])/self.dT
-            print(self.vX, self.vY)
-            self.vYaw = 0
-            self.count += 1
-            #if self.count == 6 : # To make time correspondance
-            self.pos += 2
-            #self.count = 0
+            #print("Time since first call : ", time.time() - self.start_time)    
+            #print("Time since the previous call : ", time.time()-self.time)
+            #print(self.pos)
+            if not self.orientation :
+                self.vX = (self.trajectory[self.pos+2]-self.trajectory[self.pos])/self.dT
+                self.vY = (self.trajectory[self.pos+3]-self.trajectory[self.pos+1])/self.dT
+                self.vYaw = 0
+                self.count += 1
+                #if self.count == 6 : # To make time correspondance
+                self.pos += 2
+                #self.count = 0
+            else :
+                self.vX = (self.trajectory[self.pos+3]-self.trajectory[self.pos])/self.dT
+                self.vY = (self.trajectory[self.pos+4]-self.trajectory[self.pos+1])/self.dT
+                self.vYaw = (self.trajectory[self.pos+5]-self.trajectory[self.pos+2])/self.dT
+                self.count += 1
+                #if self.count == 6 : # To make time correspondance
+                self.pos += 3
+                #self.count = 0
+
+            print(self.vX, self.vY, self.vYaw)
         
         else :
             self.wait += 1
             print(self.wait)
 
-        # Try to set constant velocities
-        # print(self.count)
-        # if self.count < 1000 :
-        #     self.vX = self.speed
-        #     self.vY = 0.0
-        #     self.vYaw = 0.0
-        #     self.count += 1
-        
-        # else :
-        #     self.vX = 0.0
-        #     self.vY = self.speed
-        #     self.vYaw = 0.0
-        #     self.count += 1
-
-        # if self.count == 2000 :
-        #     self.count = 0
-
         #self.v_gp = np.array([[- self.vY, - self.vX, 0.0, 0.0, 0.0, - self.vYaw]]).T
+        if self.vX > self.vXmax :
+            self.vX = self.vXmax
+        
+        if self.vY > self.vYmax :
+            self.vY = self.vYmax
+
+        if self.vYaw > self.vYawmax :
+            self.vYaw = self.vYawmax    
+        
         self.v_ref = np.array([[self.vX, self.vY, 0.0, 0.0, 0.0, self.vYaw]]).T
 
         #self.v_ref = self.alpha * self.v_gp + (1-self.alpha) * self.v_ref
@@ -376,9 +389,9 @@ class Joystick:
         elif velID == 7:
             if (k_loop == 0):
                 self.k_switch = np.array(
-                    [0, 100, 250, 500, 750, 800, 1000])
-                self.v_switch = np.array([[0.4, 0.0,  0.4, 0.0, 0.4, 0.0, 0.4],
-                                          [0.0, 0.4,  0.0, 0.4, 0.0, 0.4, 0.0],
+                    [0, 1000, 2000, 3000, 4000, 5000, 6000])
+                self.v_switch = np.array([[0.0, 0.5,  0.0, 0.0, 0.0, 0.0, 0.0],
+                                          [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
                                           [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
                                           [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
                                           [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
