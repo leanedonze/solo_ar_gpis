@@ -66,7 +66,7 @@ class Joystick:
         self.speed = 0.4
         self.trajectory = []
         self.pos = 0
-        self.dT = 0.2
+        self.dT = 0.1
         self.listener()
         self.time = 0.0
         self.start_time = 0.0
@@ -388,14 +388,30 @@ class Joystick:
         # My test
         elif velID == 7:
             if (k_loop == 0):
-                self.k_switch = np.array(
-                    [0, 1000, 2000, 3000, 4000, 5000, 6000])
-                self.v_switch = np.array([[0.0, 0.5,  0.0, 0.0, 0.0, 0.0, 0.0],
-                                          [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
-                                          [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
-                                          [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
-                                          [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0],
-                                          [0.0, 0.0,  0.0, 0.0, 0.0, 0.0, 0.0]])
+                if not self.orientation :
+                    duration = 1000
+                    self.k_switch = np.arange(0,duration*len(self.trajectory)//2-1,duration)
+                    print(self.k_switch)
+                    print("length :", len(self.trajectory)//2-1)
+                    self.v_switch = np.empty([6, len(self.trajectory)//2-1])
+                    for i in range(0,len(self.trajectory)//2-1,2) :
+                        print(i)
+                        self.v_switch[0,i] = (self.trajectory[i+2]-self.trajectory[i])/self.dT
+                        print(self.v_switch[0,i])
+                        self.v_switch[1,i] = (self.trajectory[i+3]-self.trajectory[i+1])/self.dT
+                
+                if self.orientation :
+                    duration = 1000
+                    self.k_switch = np.arange(0,duration*len(self.trajectory)//3-1,duration)
+                    print(self.k_switch)
+                    print("length :", len(self.trajectory)//3-1)
+                    self.v_switch = np.empty([6, len(self.trajectory)//3-1])
+                    for i in range(0,len(self.trajectory)//3-1,3) :
+                        print(i)
+                        self.v_switch[0,i] = (self.trajectory[i+3]-self.trajectory[i])/self.dT
+                        print(self.v_switch[0,i])
+                        self.v_switch[1,i] = (self.trajectory[i+4]-self.trajectory[i+1])/self.dT
+                        self.v_switch[2,i] = (self.trajectory[i+5]-self.trajectory[i+2])/self.dT
 
         self.handle_v_switch(k_loop)
         return 0
